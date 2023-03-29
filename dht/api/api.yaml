@@ -1,0 +1,55 @@
+openapi: 3.0.3
+info:
+  title: DHT
+  description: DHT API
+  version: 1.0.0
+paths:
+  '/api/v1/put':
+    post:
+      summary: Добавление значения в DHT
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              nullable: false
+              properties:
+                key:
+                  type: string
+                  nullable: false
+                value:
+                  type: string
+                  nullable: false
+      responses:
+        200:
+          description: Значение успешно добавлено
+        403:
+          description: Значение по данному ключу уже существует
+
+  '/api/v1/getMany':
+    get:
+      summary: Получение диапазона ключей по префиксу
+      parameters:
+        - in: query
+          name: prefix
+          description: Общий префикс для всех читаемых ключей
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  nullable: false
+                  properties:
+                    key:
+                      type: string
+                      nullable: false
+                    value:
+                      type: string
+                      nullable: false
