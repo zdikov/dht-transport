@@ -28,7 +28,7 @@ class DHTTransport(val dhtAddress: String) : Transport {
         val client = HttpClient.newBuilder().build()
         for (msg in msgs) {
             val request = HttpRequest.newBuilder()
-                .uri(URI.create("${dhtAddress}/api/v1/put/"))
+                .uri(URI.create("${dhtAddress}/api/v1/put"))
                 .setHeader("Content-Type", "application/json")
                 .POST(
                     HttpRequest.BodyPublishers.ofString(
@@ -49,7 +49,7 @@ class DHTTransport(val dhtAddress: String) : Transport {
     override fun receiveMessages(src: String, lastReceived: ULong) : Array<Message> {
         val client = HttpClient.newBuilder().build()
         val request = HttpRequest.newBuilder()
-            .uri(URI.create("${dhtAddress}/api/v1/getMany/?prefix=${src}.${lastReceived}."))
+            .uri(URI.create("${dhtAddress}/api/v1/getMany?prefix=${src}.${lastReceived}."))
             .GET()
             .build()
 

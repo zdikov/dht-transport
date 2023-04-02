@@ -5,14 +5,14 @@ app = Flask(__name__)
 
 dht_content = dict()
 
-@app.route('/api/v1/put/', methods=['POST'])
+@app.route('/api/v1/put', methods=['POST'])
 def put_key():
     if request.json['key'] in dht_content.keys():
         return Response("Key already exists", status=403)
     dht_content[request.json['key']] = request.json['value']
     return Response("OK", status=200)
 
-@app.route('/api/v1/getMany/')
+@app.route('/api/v1/getMany')
 def get_keys():
     prefix = request.args.get('prefix')
     result = []
