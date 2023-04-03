@@ -15,6 +15,7 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation(kotlin("stdlib", org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("com.github.ajalt.clikt:clikt:3.5.2")
 }
 
 tasks.test {

@@ -55,6 +55,9 @@ class DHTTransport(val dhtAddress: String) : Transport {
 
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         val stringBody: String = response.body()
+        if (stringBody == "null") {
+            return arrayOf<Message>()
+        }
 
         var result: Array<Message> = arrayOf<Message>()
         var kvs: Array<KeyValuePair> = Json.decodeFromString<Array<KeyValuePair>>(stringBody)
