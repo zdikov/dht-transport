@@ -14,16 +14,17 @@ class Send : CliktCommand() {
 
     override fun run() {
         val p = DHTTransport(dht_address)
-        var id = 0UL
+        var id = 1UL
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
         while (true) {
             val text = prompt("Type text")!!
+            val parent_id = prompt("Type parent_id")!!.toULong()
             val current = LocalDateTime.now()
             val formatted = current.format(formatter)
-            val msg = Message(id, id, user_id, text, formatted)
-            id = id.inc()
+            val msg = Message(id, parent_id, user_id, text, formatted)
             p.sendMessages(channel_id, arrayOf<Message>(msg))
-            println("Text sent")
+            println("Text sent with id $id")
+            id = id.inc()
         }
     }
 }
