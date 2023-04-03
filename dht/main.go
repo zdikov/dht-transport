@@ -60,6 +60,17 @@ func main() {
 		}
 	}()
 
+	// announce all keys every 10 seconds
+	go func() {
+		for range time.Tick(time.Second * 10) {
+			for key, _ := range valueStore.GetAll() {
+				_, _ = dhtSrv.AnnounceTraversal(key, dht.AnnouncePeer(dht.AnnouncePeerOpts{
+					Port: int(netip.MustParseAddrPort(dhtSrv.Addr().String()).Port()),
+				}))
+			}
+		}
+	}()
+
 	apiSrv := api.NewServer(dhtSrv, valueStore, peerStore)
 	log.Printf("Start serving on %s\n", apiSrv.Addr)
 	err = apiSrv.ListenAndServe()

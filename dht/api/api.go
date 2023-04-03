@@ -75,13 +75,16 @@ func (h *HTTPHandler) Put(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	// announce to everyone
-	_, err = h.s.AnnounceTraversal(keyBytes, dht.AnnouncePeer(dht.AnnouncePeerOpts{
+	res, err := h.s.AnnounceTraversal(keyBytes, dht.AnnouncePeer(dht.AnnouncePeerOpts{
 		Port: int(netip.MustParseAddrPort(h.s.Addr().String()).Port()),
 	}))
 
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
 	}
+
+	// wait for announce to finish
+	<-res.Finished()
 
 	rw.WriteHeader(http.StatusOK)
 }
