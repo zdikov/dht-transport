@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"dht/misc"
 	"dht/store"
 	"encoding/json"
 	"fmt"
@@ -90,15 +91,6 @@ func (h *HTTPHandler) Put(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
-func firstZero(b []byte) int {
-	for i, v := range b {
-		if v == 0 {
-			return i
-		}
-	}
-	return len(b)
-}
-
 func (h *HTTPHandler) GetMany(rw http.ResponseWriter, r *http.Request) {
 	u, err := url.Parse(r.URL.String())
 	if err != nil {
@@ -111,7 +103,7 @@ func (h *HTTPHandler) GetMany(rw http.ResponseWriter, r *http.Request) {
 
 	// lookup locally
 	for key, item := range h.vs.GetAll() {
-		keyStr := string(key[:firstZero(key[:])])
+		keyStr := string(key[:misc.FirstZero(key[:])])
 		if strings.HasPrefix(keyStr, prefix) {
 			items = append(items, Item{Key: keyStr, Value: item.V.(string)})
 		}
@@ -119,7 +111,7 @@ func (h *HTTPHandler) GetMany(rw http.ResponseWriter, r *http.Request) {
 
 	// lookup externally
 	for key, peers := range h.ps.GetAll() {
-		keyStr := string(key[:firstZero(key[:])])
+		keyStr := string(key[:misc.FirstZero(key[:])])
 		if strings.HasPrefix(keyStr, prefix) && len(peers) > 0 {
 			res := h.s.Get(context.TODO(), dht.NewAddr(peers[0].NodeAddr.UDP()), key, nil, dht.QueryRateLimiting{})
 			if res.ToError() != nil {
@@ -134,7 +126,11 @@ func (h *HTTPHandler) GetMany(rw http.ResponseWriter, r *http.Request) {
 				http.Error(rw, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			items = append(items, Item{Key: keyStr, Value: string(bytes)})
+			valueStr := string(bytes)
+			items = append(items, Item{Key: keyStr, Value: valueStr})
+
+			storeItem := bep44.Item{Key: (*[20]byte)(&key), V: valueStr}
+			_ = h.vs.Put(&storeItem)
 		}
 	}
 

@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"dht/api"
 	"dht/store"
 	"fmt"
 	"github.com/anacrolix/dht/v2"
+	"github.com/anacrolix/dht/v2/bep44"
 	"github.com/anacrolix/dht/v2/int160"
 	"github.com/anacrolix/dht/v2/krpc"
 	peer_store "github.com/anacrolix/dht/v2/peer-store"
@@ -67,6 +69,25 @@ func main() {
 				_, _ = dhtSrv.AnnounceTraversal(key, dht.AnnouncePeer(dht.AnnouncePeerOpts{
 					Port: int(netip.MustParseAddrPort(dhtSrv.Addr().String()).Port()),
 				}))
+			}
+		}
+	}()
+
+	// download new values every minute
+	go func() {
+		for key, peers := range peerStore.GetAll() {
+			_, err = valueStore.Get(key)
+			if err == bep44.ErrItemNotFound && len(peers) > 0 {
+				res := dhtSrv.Get(context.TODO(), dht.NewAddr(peers[0].NodeAddr.UDP()), key, nil, dht.QueryRateLimiting{})
+				if (res.ToError() != nil) || (res.Reply.R == nil) || (res.Reply.R.V == nil) {
+					continue
+				}
+				bytes, err := res.Reply.R.V.MarshalBencode()
+				if err != nil {
+					continue
+				}
+				storeItem := bep44.Item{Key: (*[20]byte)(&key), V: string(bytes)}
+				_ = valueStore.Put(&storeItem)
 			}
 		}
 	}()
