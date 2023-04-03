@@ -2,7 +2,9 @@
 
 ## Демо: TODO
 
-## Интерфейс
+Проект состоит из сервера и клиентской библотеки, которая общается с сервером по HTTP.
+
+## Интерфейс библиотеки
 ```kotlin
 interface Transport {
     // sends a message to the peer `dest` (channel id);
