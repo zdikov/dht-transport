@@ -71,6 +71,7 @@ func (h *HTTPHandler) Put(rw http.ResponseWriter, r *http.Request) {
 	storeItem := bep44.Item{Key: &keyBytes, V: item.Value}
 	err = h.vs.Put(&storeItem)
 	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
